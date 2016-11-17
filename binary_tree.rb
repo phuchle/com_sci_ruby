@@ -12,8 +12,6 @@ class Node
 end
 
 # assumes array is sorted, returns binary tree of Nodes
-# then refactor to handle data that isn't presorted can't be easily sorted
-# array = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]
 
 class BinaryTree
 	attr_accessor :root
@@ -22,7 +20,7 @@ class BinaryTree
 		@root = nil
 	end
 
-	def balanced_tree(array, parent=nil)
+	def build_tree_sorted(array, parent=nil)
 
 		if array.length <= 0
 			return nil
@@ -46,11 +44,41 @@ class BinaryTree
 	end
 
 	# builds binary search tree for unsorted array
-	def build_tree(array, parent=nil)
+	# tree is unbalanced
+	def build_tree(array)
+		@root = Node.new(array[0])
+		temp_root = @root
+
+		array[1..-1].each do |node_value|
+			insert_node(node_value, temp_root)
+		end
+	end
+
+
+	def insert_node(node_value, root, parent = nil)
+		if root.nil?
+			new_node = Node.new(node_value)
+			
+			if node_value < parent.value
+				parent.left_child = new_node
+			else
+				parent.right_child = new_node
+			end
+		elsif node_value < root.value || node_value == root.value
+			parent = root
+			root = root.left_child
+			insert_node(node_value, root, parent)
+		elsif node_value > root.value 
+			# byebug
+			parent = root
+			root = root.right_child
+			insert_node(node_value, root, parent)
+		end
 
 	end
 
 	# returns node at which target value is located using BFS
+	# use array acting as a queue to track all child nodes left to search
 	def breadth_first_search(target)
 
 	end
@@ -67,8 +95,7 @@ class BinaryTree
 	end
 end
 
-array = [1, 3, 4, 4, 5, 7, 7, 8, 9, 9, 23, 67, 324, 6345] 
-array.sort!
+# array = [1, 3, 4, 4, 5, 7, 7, 8, 9, 9, 23, 67, 324, 6345] 
+array = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]
 
 tree = BinaryTree.new
-p tree.root
