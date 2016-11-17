@@ -54,7 +54,7 @@ class BinaryTree
 		end
 	end
 
-
+	# helper which recursively searches through tree to find correct place
 	def insert_node(node_value, root, parent = nil)
 		if root.nil?
 			new_node = Node.new(node_value)
@@ -80,7 +80,23 @@ class BinaryTree
 	# returns node at which target value is located using BFS
 	# use array acting as a queue to track all child nodes left to search
 	def breadth_first_search(target)
+		search_queue = []
+		initial_node = @root
+		search_queue << initial_node
 
+		return nil if @root.nil?
+
+		until search_queue.empty?
+			test_node = search_queue.shift
+
+			if test_node.value == target
+				return test_node
+			else
+				search_queue << test_node.left_child if !test_node.left_child.nil?
+				search_queue << test_node.right_child if !test_node.right_child.nil?
+			end
+		end
+		nil
 	end
 
 	# returns node at which target vlaue is located using DFS
