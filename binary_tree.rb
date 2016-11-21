@@ -21,7 +21,6 @@ class BinaryTree
 	end
 
 	def build_tree_sorted(array, parent=nil)
-
 		if array.length <= 0
 			return nil
 		elsif array.length == 1
@@ -58,18 +57,19 @@ class BinaryTree
 	def insert_node(node_value, root, parent = nil)
 		if root.nil?
 			new_node = Node.new(node_value)
-			
+
 			if node_value < parent.value
 				parent.left_child = new_node
 			else
 				parent.right_child = new_node
 			end
-		elsif node_value < root.value || node_value == root.value
+
+      new_node.parent = parent
+		elsif node_value < root.value
 			parent = root
 			root = root.left_child
 			insert_node(node_value, root, parent)
-		elsif node_value > root.value 
-			# byebug
+		elsif node_value > root.value
 			parent = root
 			root = root.right_child
 			insert_node(node_value, root, parent)
@@ -92,8 +92,8 @@ class BinaryTree
 			if test_node.value == target
 				return test_node
 			else
-				search_queue << test_node.left_child if !test_node.left_child.nil?
-				search_queue << test_node.right_child if !test_node.right_child.nil?
+				search_queue << test_node.left_child unless test_node.left_child.nil?
+				search_queue << test_node.right_child unless test_node.right_child.nil?
 			end
 		end
 		nil
@@ -101,17 +101,32 @@ class BinaryTree
 
 	# returns node at which target vlaue is located using DFS
 	# use an array acting as stack
-	def depth_first_search(target)
 
+	def depth_first_search(target)
+    return @root if @root.value == target
+    search_stack = [@root]
+    until search_stack.empty?
+      test_node = search_stack.pop
+
+      if test_node.value == target
+        return test_node
+      else
+        search_stack << test_node.right_child unless test_node.right_child.nil?
+        search_stack << test_node.left_child unless test_node.left_child.nil?
+      end
+    end
+
+    nil
 	end
 
 	# same as depth_first_search but using recursion
-	def dfs_rec
-
+	def dfs_rec(target, current_node=@root)
+    return if current_node.nil?
+    return current_node if current_node.value == target
+    dfs_rec(target, current_node.left_child) ||
+    dfs_rec(target, current_node.right_child)
 	end
 end
 
-# array = [1, 3, 4, 4, 5, 7, 7, 8, 9, 9, 23, 67, 324, 6345] 
+# array = [1, 3, 4, 4, 5, 7, 7, 8, 9, 9, 23, 67, 324, 6345]
 array = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]
-
-tree = BinaryTree.new
