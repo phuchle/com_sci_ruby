@@ -2,9 +2,15 @@ require 'byebug'
 
 class Knight
 
+  def initialize
+    @board = Board.new
+  end
+
   # shows simplest possible way to get from one square to another
   # outputs coordinates of all stops along the way and num of moves taken
   def knight_moves(initial, final)
+    @board.check_impossible_move(initial, final)
+
     search_queue = [Vertex.new(initial)]
 
     until search_queue.empty?
@@ -12,12 +18,11 @@ class Knight
 
       return show_path(make_path(test_vertex)) if test_vertex.value == final
       
-      test_vertex.children.each do |value|
-        unless value.any? { |num| num < 0 || num > 7}
-          new_vertex = Vertex.new(value)
-          new_vertex.parent = test_vertex
-          search_queue << new_vertex
-        end
+     @board.possible_moves(test_vertex.value).each do |move|
+        new_vertex = Vertex.new(move)
+        new_vertex.parent = test_vertex
+        test_vertex.children << move
+        search_queue << new_vertex
       end 
 
     end
@@ -43,22 +48,40 @@ class Knight
   end
 end
 
+class Board
+  def possible_moves(position)
+    moves = [
+      [position[0] + 1, position[1] + 2],
+      [position[0] + 1, position[1] - 2],
+      [position[0] - 1, position[1] + 2],
+      [position[0] - 1, position[1] - 2],
+      [position[0] + 2, position[1] + 1],
+      [position[0] + 2, position[1] - 1],
+      [position[0] - 2, position[1] + 1],
+      [position[0] - 2, position[1] - 1]
+    ]
+    moves.select { |move| is_possible?(move)}
+  end
+
+  def is_possible?(position)
+    position.all? { |num| num.between?(0,7) }
+  end
+
+  def check_impossible_move(initial, final)
+    all_positions = initial + final
+    if !all_positions.any? { |num| num.between?(0,7) }
+      puts "You have entered a position that isn't on the board!  Try again."
+    end
+  end
+end
+
 class Vertex
   attr_accessor :value, :parent, :children
 
   def initialize(value = nil)
     @value = value
     @parent = nil
-    @children = [
-      [value[0] + 1, value[1] + 2],
-      [value[0] + 1, value[1] - 2],
-      [value[0] - 1, value[1] + 2],
-      [value[0] - 1, value[1] - 2],
-      [value[0] + 2, value[1] + 1],
-      [value[0] + 2, value[1] - 1],
-      [value[0] - 2, value[1] + 1],
-      [value[0] - 2, value[1] - 1]
-    ]
+    @children = []
 
   end
 end
